@@ -1,16 +1,15 @@
 import logging
 import random
 from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
+# CommandHandler ko import list mein add kiya hai
+from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, CommandHandler, filters
 from config import TOKEN
 
-# Logging setup (Error tracking ke liye)
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
 
-# Yeh wo list hai jisme se bot random reply choose karega
 RANDOM_REPLIES = [
     "Hello",
     "Kese ho aap?",
@@ -19,25 +18,38 @@ RANDOM_REPLIES = [
     "Hi there"
 ]
 
-# Function: Jo user ke message ka reply karega
+# 1. Yeh naya Start function hai
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Yahan aap bot ki information likh sakte hain
+    bot_info = (
+        "👋 **Namaste! Main ek Simple Random Bot hoon.**\n\n"
+        "🤖 **Bot Info:**\n"
+        "• Language: Python\n"
+        "• Library: python-telegram-bot\n"
+        "• Developer: Full Stack Dev\n\n"
+        "💬 **Kaise use karein:**\n"
+        "Bas mujhe koi bhi message bhejo (e.g. 'Hi'), aur main random reply karunga!"
+    )
+    # Markdown parse_mode use kar rahe hain taaki bold text dikhe
+    await update.message.reply_text(bot_info, parse_mode='Markdown')
+
+# 2. Random reply function (Same as before)
 async def random_reply_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # User ka message aate hi random text choose karega
     reply_text = random.choice(RANDOM_REPLIES)
-    
-    # User ko wapas reply send karega
     await update.message.reply_text(reply_text)
 
 if __name__ == '__main__':
-    # Application build kar rahe hain config file ke token se
     app = ApplicationBuilder().token(TOKEN).build()
 
-    # Message Handler: Yeh sirf text messages ko sunega (Commands ko ignore karega)
-    # filters.TEXT & (~filters.COMMAND) ka matlab hai sirf normal text messages
+    # 3. Start Handler ko add kiya
+    # Jab koi /start bhejege toh 'start' function chalega
+    start_handler = CommandHandler('start', start)
+    app.add_handler(start_handler)
+
+    # Text Handler (Yeh normal messages ke liye hai)
     text_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), random_reply_handler)
-    
     app.add_handler(text_handler)
 
     print("Bot start ho gaya hai...")
-    # Bot ko run karna
     app.run_polling()
-  
+    
