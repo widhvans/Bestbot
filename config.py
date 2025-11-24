@@ -1,3 +1,3 @@
 # Apna Telegram Bot Token yahan paste karein
-TOKEN = "YOUR_BOT_TOKEN_HERE"
+TOKEN = "8368477494:AAEX-ndxDVt9F_EyfMCQc8tAQNObH-TH51Y"
 
